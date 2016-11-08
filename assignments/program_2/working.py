@@ -11,20 +11,19 @@ import struct
 
 class arbitor:
     def __init__(self):
-	self.people = []
-	
-    def addPerson(self):
-	self.people.append(0)
+	self.count = 0
 	
     def havePermission(self, index):
-	self.people[index]+= 1
+	print "permission entered"
+	self.count += 1
 	
-	if(self.people[index]>10):
-	  self.people[index] = 0
+	if(self.count>10):
+	  self.count= 0
 	  philosophers[index].canEat = False
+	  print "if statement"
 	else:
 	  philosophers[index].canEat = True
-
+	  print "else statement"
 
 """=========================================================="""
 
@@ -72,14 +71,8 @@ class Philosopher(threading.Thread):
         while self.canEat:
             forkPair.pickUp()
 	    print 'Philosopher {index} just ate'.format(index = self.index) 
-            #with screenLock:
-                ##self.window.cprint(self.cell.row, self.cell.col, "#" ,self.color)
-                #self.cell.col += 1
-                #if self.cell.col >= self.window.maxx-2:
-                    #self.cell.col = 10
-                    #for i in range(10,self.window.maxx-2):
-                        #self.window.cprint(self.cell.row, i, "#",16)
             time.sleep(.01)
+            arb.havePermission(self.index)
 	forkPair.putDown()
     
 class ForkPair:
@@ -95,12 +88,13 @@ class ForkPair:
         # Acquire by starting with the lower index
         self.firstFork.acquire()
         self.secondFork.acquire()
+        print "pick up"
 
     def putDown(self):
         # The order does not matter here
         self.firstFork.release()
         self.secondFork.release()
-        
+        print "put down"
 
 if __name__ == "__main__":
 
@@ -112,12 +106,11 @@ if __name__ == "__main__":
     for i in range(0, numPhilosophers):
         philosophers.append(Philosopher(i))
         forks.append(threading.Lock())
-        arb.addPerson()
         row += 1
 
     # All philosophers start eating
     for philosopher in philosophers:
-        philosopher.run()
+        philosopher.start()
 
     # Allow CTRL + C to exit the program
     try:
